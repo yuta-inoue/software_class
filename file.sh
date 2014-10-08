@@ -1,0 +1,13 @@
+mkdir hw
+mkdir submit
+mkdir class
+touch hw/a.c
+touch hw/b.c
+touch hw/c.c
+touch hw/d.c
+touch class/a.c
+touch class/b.c
+touch class/c.c
+touch class/d.c
+touch submit/hw.txt
+touch submit/class.txt
