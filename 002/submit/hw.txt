@@ -1,0 +1,232 @@
+機械ソフトウェア演習　宿題
+第一回
+学籍番号 : 340192C
+井上　裕太
+
+[感想]
+問題1のfor文のところで無駄にはまった気がします
+競技プログラミングを始めたところなので入出力のtipsを教えていただけると非常にありがたいです
+cではscanfとprintfだけの気もしたのですが…それでも標準入出力の内部構造のような話があると面白いと思います
+
+宿題
+宿題1
+[janken.c]
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+#include<time.h>
+
+void hantei(int a,int b);
+int win,lose,draw;
+
+int main(void){
+    int my_hand,pc_hand;
+    char buf[10];
+    char word[10];
+    char yn[10];
+    
+    win = lose = draw = 0;
+    srand((unsigned)time(NULL));
+    
+    while(1){
+        pc_hand = rand()%3;
+        printf("..........................\n");
+        printf("Paper-Rock-Scissors\n");
+        printf("Your choice? <Rock: 0, Scissors: 1,Paper: 2>:");
+        fgets(buf,sizeof(buf),stdin);
+        sscanf(buf,"%d",&my_hand);
+        
+        hantei(my_hand,pc_hand);
+        printf("My hand : %d,PC hand : %d\n”,my_hand,pc_hand);
+        printf("Win %d,Lose %d,Draw %d\n",win,lose,draw);
+        
+        printf("Continue?<Yes...y,No...n>:");
+        fgets(buf,sizeof(buf),stdin);
+        sscanf(buf,"%s",yn);
+        if(strcmp(yn,"n")==0)break;
+    }
+    return 0;
+}
+
+void hantei(int m_h,int p_h){
+    if(m_h < 0 || m_h > 2)return;
+    if(m_h==p_h){
+        draw++;
+        return;
+    }
+    if(m_h==2){
+        if(p_h==0)
+            win++;
+        else
+            lose++;
+        return;
+    }
+    if(m_h < p_h){
+        lose++;
+    } else {
+        win++;
+    }
+    return;
+}
+
+[command]
+gcc janken.c -o janken -lm
+./janken
+
+[input]
+0
+y
+1
+y
+2
+y
+0
+y
+1
+y
+2
+y
+0
+y
+1
+y
+2
+n
+[output]
+Win 1,Lose 5,Draw 3
+
+[考察]
+randは擬似乱数を発生させるだけのためある程度偏りがあると思っていたが、結果としてかなり偏っていた
+srandでtimeをシードに設定したのが原因なのではないかと考える
+宿題2
+[dayCalc.c]
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+
+void dayCalculation(int yea,int month,int day);
+
+int main(void){
+    int year,month,day;
+    char line[256];
+    int ret;
+    
+    printf("Enter any date (year month day):");
+    fgets(line,sizeof(line),stdin);
+    ret = sscanf(line,"%d %d %d",&year,&month,&day);
+    if(ret!=3){
+        printf("Incorrect data entered.\n");
+        return 1;
+    }
+    
+    if(year<=0 || month <= 0 || month > 12 || day <= 0 || day > 31){
+        printf("Incorrect data entered.\n");
+        return 1;
+    }
+    dayCalculation(year,month,day);
+    return 0;
+}
+
+void dayCalculation(int y,int m,int d){
+    char day[100];
+    if(m == 1 || m == 2){
+        m += 12;
+        y--;
+    }
+    
+    int Ya = floor((double)y / 100);
+    int Yb = y % 100;
+    int r = (int)(d + floor((double)26*(m+1)/10) + Yb + floor((double)Yb/4) + floor((double)Ya/4) + 5 * Ya) % 7;
+    switch (r) {
+        case 0:
+         printf("Sat\n");
+            break;
+        case 1:
+            printf("Sun\n");
+            break;
+        case 2:
+            printf("Mon\n");
+            break;
+        case 3:
+            printf("Tue\n");
+            break;
+        case 4:
+            printf("Wed\n");
+            break;
+        case 5:
+            printf("Thu\n");
+            break;
+        default:
+            printf("Fri\n");
+            break;
+    }
+}
+
+[command]
+gcc dayCalc.c -o dayCalc -lm
+./dayCalc
+
+[input]
+1. 2014 10 22
+2. 2014 10 1
+3. 1994 7 27
+4. 2000 1 1
+
+[output]
+1. Wed
+2. Wed
+3. Wed
+4. Sat
+
+[考察]
+cにはstring型が定義されていないことを思い出し、曜日をswitch文で判定する際に格納してからprintf(“%s”,day);のような形で出力する方法からそれぞれのstatement内で出力する方式に変えた
+floor関数を利用したため比較的楽に作ることができた
+
+おまけ1
+[omake1.c]
+#include<stdio.h>
+#include<math.h>
+double y(double x);
+double daikei(double xb,double xe,double yb,double ye);
+int main(){
+    int N;
+    double xb,xe,yb,ye,sum=0;
+    scanf("%d",&N);
+    for(int i = 0;i<N;i++){
+        xb = (double)2*i/N,xe = (double)2*(i+1)/N;
+        yb = y(xb),ye=y(xe);
+        sum += daikei(xb,xe,yb,ye);
+    }
+    printf("%lf\n",sum);
+}
+
+double y(double x){
+    return x * (x-2)*(x-2);
+}
+
+double daikei(double xb,double xe, double yb, double ye){
+    return (yb+ye)*(xe-xb)/2;
+}
+
+[command]
+gcc omake1.c -o omake1 -lm
+./omake1
+
+[input]
+1. 2
+2. 3
+3. 10
+4. 100
+5. 100000000
+
+[output]
+1. 1.000000
+2. 1.185185
+3. 1.320000
+4. 1.333200
+5. 1.333333
+
+[考察]
+オブジェクト指向を意識して書いてみた
+はじめ、xb = i/Nで定義していたため、求める面積の値が大きくかわってしまっていたため今後は定義域にも注意したいと思う
