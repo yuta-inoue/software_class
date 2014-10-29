@@ -1,90 +1,399 @@
 機械ソフトウェア演習
-第一回
+
+第二回
 学籍番号 : 340192C
 井上　裕太
 
 [感想]
+プロトタイプ宣言を忘れてエラーをはかれることが何度かあった
+c#やphpでは関数の位置は意識しなくてもいいため、このエラーとは付き合いが長くなりそうだと感じた
+おまけに関しては配列で解けば数行…と思ったが、switchできれいに書く方法がなかったためベタがきにした
+switchで配列に代入することも考えたのだが、まだつかってない配列を使ってはいけないのではという葛藤があった
 
 問題1
-[a.c]
+[operation.c]
+#include<stdio.h>
 #include<stdio.h>
 
+double add(double x,double y);
+double sub(double x,double y);
+double mul(double x,double y);
+double div(double x,double y);
+
 int main(){
-	char jusyoroku[][4][100]={{"山田","100-0001","東京都杉並区駒場1-1-1","0123-45-6789"},{"田中","100-0002","東京都新宿区新宿1-1-1","1234-56-7890"},{"安藤","123-4567","東京都武蔵野市吉祥寺1-1-1","2345-67-8901"}};
-	int i;
-	const int num = sizeof jusyoroku[1] / sizeof jusyoroku[1][0];
-	for(i = 0;i<num;i++){
-		puts(jusyoroku[1][i]);
-	}
+	double a,b,result;
+    char buf[30];
+	printf("Enter two numbers\n");
+	fgets(buf,sizeof(buf),stdin);
+	sscanf(buf,"%lf %lf",&a,&b);
+	printf("a = %f,b = %f\n",a,b);
+	result = add(a,b);
+	printf("a + b = %f\n",result);
+    result = sub(a,b);
+    printf("a - b = %f\n",result);
+    result = mul(a,b);
+    printf("a * b = %f\n",result);
+    result = div(a,b);
+    printf("a / b = %f\n",result);
+    return 0;
+}
+
+double add(double x,double y){
+    return x + y;
+}
+
+double sub(double x,double y){
+    return x - y;
+}
+
+double mul(double x,double y){
+    return x * y;
+}
+
+double div(double x,double y){
+    return x / y;
 }
 
 [command]
-gcc a.c -o a -lm
-./a
+gcc operation.c -o operation -lm
+./operation
 
+[input]
+1. 1 2
+2. 4 5
+3. 10 4
 [output]
-田中
-100-0002
-東京都新宿区新宿1-1-1
-1234-56-7890
+Enter two numbers
+
+1.
+a = 1.000000,b = 2.000000
+a + b = 3.000000
+a - b = -1.000000
+a * b = 2.000000
+a / b = 0.500000
+
+2.
+a = 4.000000,b = 5.000000
+a + b = 9.000000
+a - b = -1.000000
+a * b = 20.000000
+a / b = 0.800000
+
+3.
+a = 10.000000,b = 4.000000
+a + b = 14.000000
+a - b = 6.000000
+a * b = 40.000000
+a / b = 2.500000
 
 [考察]
-確保するメモリの関係から始めの添字を入れなくてもいいというのを思い出した
-char型で文字列を制御するのは非常に大変なため、string型がほしいと強く感じた
-string.hをincludeしようか迷ったが、char配列としてということだったので配列利用のコードを書いた
+個人的には、実装部が一行なのでプロトタイプ宣言をするまでもなくそのままかいてしまってもいいかなと思うものだったが、プロトタイプ宣言の概念の導入を初期にやるというのは、後々の見やすいコードを書くという上で非常にいいと思う
 
 問題2
-[b.c]
+[operation2.c]
 #include<stdio.h>
-#include<math.h>
+
+double add(double x,double y);
+double sub(double x,double y);
+double mul(double x,double y);
+double div(double x,double y);
+
 int main(){
-	double x[5] = {0.1,0.2,-0.4,0.1,-0.1};
-	double varience=0,average=0,sum=0,sum_v=0;
-	int i;
-	for(i = 0;i<5;i++)sum+=x[i];
-	average = sum/5;
-	for(i=0;i<5;i++)sum_v+=pow(average-x[i],2);
-	varience = sum_v/5;
-	printf("平均: %lf\n分散 : %lf\n",average,varience);
-	return 0;
+    double a,b,result;
+    char buf[30];
+    int i;
+    printf("1.add 2. sub 3.mul 4.div\n");
+    fgets(buf,sizeof(buf),stdin);
+    sscanf(buf,"%d",&i);
+    printf("Enter two numbers\n");
+    fgets(buf,sizeof(buf),stdin);
+    sscanf(buf,"%lf %lf",&a,&b);
+    printf("a = %f,b = %f\n",a,b);
+    result = add(a,b);
+    switch (i) {
+        case 1:
+            result = add(a,b);
+            printf("a + b = %f\n",result);
+            break;
+        case 2:
+            result = sub(a,b);
+            printf("a - b = %f\n",result);
+            break;
+        case 3:
+            result = mul(a,b);
+            printf("a * b = %f\n",result);
+            break;
+        default:
+            result = div(a,b);
+            printf("a / b = %f\n",result);
+            break;
+    }
+    return 0;
+}
+
+double add(double x,double y){
+    return x + y;
+}
+
+double sub(double x,double y){
+    return x - y;
+}
+
+double mul(double x,double y){
+    return x * y;
+}
+
+double div(double x,double y){
+    return x / y;
 }
 
 [command]
-gcc b.c -o b -lm
-./b
+gcc operation2.c -o operation2 -lm
+./operation2
+
+[input]
+1. 1
+   1 2
+2. 2
+   3 4
+3. 3
+   10 100
+4. 4
+   20 10
 
 [output]
-平均: -0.020000
-分散 : 0.045600
+1. 
+a = 1.000000,b = 2.000000
+a + b = 3.000000
+
+2. 
+a = 3.000000,b = 4.000000
+a - b = -1.000000
+
+3. 
+a = 10.000000,b = 100.000000
+a * b = 1000.000000
+
+4.
+a = 20.000000,b = 10.000000
+a / b = 2.000000
 
 [考察]
-forで要素をイテレートし計算するというものだったので、for文で先に合計を算出し、後で割るという形をとった
-cでリテラル式が使えるのが知らなかったため、初期化式を短くかけたと思う
 
-オプショナル
-[c.c]
+
+問題3
+[pro3.c]
 #include<stdio.h>
-#include<math.h>
-
-double f(double x);
 
 int main(){
-	double x = 0.1;
-	printf("尤度: %lf\n",f(x));
+    int N;
+    double result=0;
+    scanf("%d",&N);
+    for(int i=1;i<=N;i++){
+        result += (double)1/(i*i);
+    }
+    printf("%lf\n”,result);
+    return 0;
 }
 
-double f(double x){
-	double varience = 0.045600;
-	double ave = -0.020000;
-	return (1/sqrt(2*M_PI*varience))*exp(-pow(x-ave,2)/(2*varience));
-}
 [command]
-gcc c.c -o c -lm
-./c
+gcc roop.c -o roop -lm
+./roop
+
+[input]
+1. 2
+2. 10
+3. 100
+4. 10000
 
 [output]
-尤度: 1.595346
+1.1.250000
+2.1.549768
+3.1.634984
+4.1.644834
 
 [考察]
-コードそのものというよりも尤度の算出方法がわからなかった
-できるかぎり関数化して、main関数のコード量を落とすことで保守性をあげることを意識して書いた
+4/3を先にやるとコンパイラにint型と判断されるのではと考え先にdouble型の変数を計算した、doubleでキャストするということも考えたが、cでのキャストは安全ではなかったと思ったのが理由である
+[omake1.c]
+#include<stdio.h>
+
+int main(){
+    int N;
+    int os[5][5];
+    int v_11=0,v_12=0,v_13=0,v_14=0,v_19=0,v_21=0,v_22=0,v_23=0,v_24=0,v_29=0,v_31=0,v_32=0,v_33=0,v_34=0,v_39=0,v_41=0,v_42=0,v_43=0,v_44=0,v_49=0,v_91=0,v_92=0,v_93=0,v_94=0,v_99=0;
+    do{
+        printf("|-----OS-----|------回答番号------|  |------形式------|------回答番号------|\n");
+        printf("|Mac OS      | 1                 |  |デスクトップ　　　| 1                 |\n");
+        printf("|Windows     | 2                 |  |ノート          | 2                 |\n");
+        printf("|LINUX       | 3                 |  |タブレット       | 3                 |\n");
+        printf("|Android     | 4                 |  |スマートフォン    | 4                 |\n");
+        printf("|その他       | 9                 |  |その他          | 9                 |\n");
+        printf("回答例 Windows-ノートの場合は 22\n");
+        scanf("%d",&N);
+        switch (N) {
+            case 11:
+                v_11++;
+                break;
+            case 12:
+                v_12++;
+                break;
+            case 13:
+                v_13++;
+                break;
+            case  14:
+                v_14++;
+                break;
+            case  19:
+                v_19++;
+                break;
+            case  21:
+                v_21++;
+                break;
+            case  22:
+                v_22++;
+                break;
+            case  23:
+                v_23++;
+                break;
+            case  24:
+                v_24++;
+                break;
+            case  29:
+                v_29++;
+                break;
+            case  31:
+                v_31++;
+                break;
+            case  32:
+                v_32++;
+                break;
+            case  33:
+                v_33++;
+                break;
+            case  34:
+                v_34++;
+                break;
+            case  39:
+                v_39++;
+                break;
+            case  41:
+                v_41++;
+                break;
+            case  42:
+                v_42++;
+                break;
+            case  43:
+                v_43++;
+                break;
+            case  44:
+                v_44++;
+                break;
+            case  49:
+                v_99++;
+                break;
+            case  91:
+                v_91++;
+                break;
+            case  92:
+                v_92++;
+                break;
+            case 93:
+                v_93++;
+                break;
+            case 94:
+                v_94++;
+                break;
+            case 99:
+                v_99++;
+                break;
+            default:
+                break;
+        }
+        /* int t,o;
+           t = N/10;
+           o = N%10;
+           os[t][o]++;
+         */
+    }while(N!=0);
+    printf("Mac OS デスクトップ : %d\n",v_11);
+    printf("Mac OS ノート : %d\n",v_12);
+    printf("Mac OS タブレット : %d\n",v_13);
+    printf("Mac OS スマートフォン : %d\n",v_14);
+    printf("Mac OS その他 : %d\n",v_19);
+    
+    printf("Windows デスクトップ : %d\n",v_21);
+    printf("Windows ノート : %d\n",v_22);
+    printf("Windows OS タブレット : %d\n",v_23);
+    printf("Windows OS スマートフォン : %d\n",v_24);
+    printf("Windows その他 : %d\n",v_29);
+    
+    printf("LINUX デスクトップ : %d\n",v_31);
+    printf("LINUX ノート : %d\n",v_32);
+    printf("LINUX タブレット : %d\n",v_33);
+    printf("LINUX スマートフォン : %d\n",v_34);
+    printf("LINUX その他 : %d\n",v_39);
+    
+    printf("Android デスクトップ : %d\n",v_41);
+    printf("Android ノート : %d\n",v_42);
+    printf("Android タブレット : %d\n",v_43);
+    printf("Android スマートフォン : %d\n",v_44);
+    printf("Android その他 : %d\n",v_49);
+    
+    printf("その他 デスクトップ : %d\n",v_91);
+    printf("その他 ノート : %d\n",v_92);
+    printf("その他 タブレット : %d\n",v_93);
+    printf("その他 スマートフォン : %d\n",v_94);
+    printf("その他 その他 : %d\n",v_99);
+    return 0;
+}
+
+[command]
+gcc omake.c -o omake -lm
+./omake
+
+[input]
+11
+22
+12
+32
+11
+34
+43
+91
+19
+29
+39
+19
+39
+44
+31
+0
+
+[output]
+Mac OS デスクトップ : 2
+Mac OS ノート : 1
+Mac OS タブレット : 0
+Mac OS スマートフォン : 0
+Mac OS その他 : 2
+Windows デスクトップ : 0
+Windows ノート : 1
+Windows OS タブレット : 0
+Windows OS スマートフォン : 0
+Windows その他 : 1
+LINUX デスクトップ : 1
+LINUX ノート : 1
+LINUX タブレット : 0
+LINUX スマートフォン : 1
+LINUX その他 : 2
+Android デスクトップ : 0
+Android ノート : 0
+Android タブレット : 1
+Android スマートフォン : 1
+Android その他 : 0
+その他 デスクトップ : 1
+その他 ノート : 0
+その他 タブレット : 0
+その他 スマートフォン : 0
+その他 その他 : 0
+
+[考察]
