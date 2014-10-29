@@ -1,0 +1,90 @@
+機械ソフトウェア演習
+第一回
+学籍番号 : 340192C
+井上　裕太
+
+[感想]
+
+問題1
+[a.c]
+#include<stdio.h>
+
+int main(){
+	char jusyoroku[][4][100]={{"山田","100-0001","東京都杉並区駒場1-1-1","0123-45-6789"},{"田中","100-0002","東京都新宿区新宿1-1-1","1234-56-7890"},{"安藤","123-4567","東京都武蔵野市吉祥寺1-1-1","2345-67-8901"}};
+	int i;
+	const int num = sizeof jusyoroku[1] / sizeof jusyoroku[1][0];
+	for(i = 0;i<num;i++){
+		puts(jusyoroku[1][i]);
+	}
+}
+
+[command]
+gcc a.c -o a -lm
+./a
+
+[output]
+田中
+100-0002
+東京都新宿区新宿1-1-1
+1234-56-7890
+
+[考察]
+確保するメモリの関係から始めの添字を入れなくてもいいというのを思い出した
+char型で文字列を制御するのは非常に大変なため、string型がほしいと強く感じた
+string.hをincludeしようか迷ったが、char配列としてということだったので配列利用のコードを書いた
+
+問題2
+[b.c]
+#include<stdio.h>
+#include<math.h>
+int main(){
+	double x[5] = {0.1,0.2,-0.4,0.1,-0.1};
+	double varience=0,average=0,sum=0,sum_v=0;
+	int i;
+	for(i = 0;i<5;i++)sum+=x[i];
+	average = sum/5;
+	for(i=0;i<5;i++)sum_v+=pow(average-x[i],2);
+	varience = sum_v/5;
+	printf("平均: %lf\n分散 : %lf\n",average,varience);
+	return 0;
+}
+
+[command]
+gcc b.c -o b -lm
+./b
+
+[output]
+平均: -0.020000
+分散 : 0.045600
+
+[考察]
+forで要素をイテレートし計算するというものだったので、for文で先に合計を算出し、後で割るという形をとった
+cでリテラル式が使えるのが知らなかったため、初期化式を短くかけたと思う
+
+オプショナル
+[c.c]
+#include<stdio.h>
+#include<math.h>
+
+double f(double x);
+
+int main(){
+	double x = 0.1;
+	printf("尤度: %lf\n",f(x));
+}
+
+double f(double x){
+	double varience = 0.045600;
+	double ave = -0.020000;
+	return (1/sqrt(2*M_PI*varience))*exp(-pow(x-ave,2)/(2*varience));
+}
+[command]
+gcc c.c -o c -lm
+./c
+
+[output]
+尤度: 1.595346
+
+[考察]
+コードそのものというよりも尤度の算出方法がわからなかった
+できるかぎり関数化して、main関数のコード量を落とすことで保守性をあげることを意識して書いた
