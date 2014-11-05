@@ -1,0 +1,36 @@
+機械ソフトウェア演習
+第四回 2
+学籍番号 : 340192C
+井上　裕太
+[c.c]
+#include<stdio.h>
+#include<stdlib.h>
+int main(){
+    int num,i;
+    char line[40];
+    int *p;
+    printf("データ数の入力:");
+    fgets(line,sizeof(line),stdin);
+    sscanf(line,"%d",&num);
+    p = (int*)malloc(sizeof(int)*num);
+    printf("先頭アドレス=%p\n",p);
+    *p = 10;
+    printf("p=%d\n",*p);
+    free(p);
+    printf("p=%d\n",*p);
+    return 0;
+}
+
+[command]
+gcc c.c -o c -lm
+./c
+
+[output]
+データ数の入力:10
+先頭アドレス=0x7fbaf9d00000
+p=10
+p=10
+
+[考察]
+freeしているはずなのにpの値が参照できる理由が今ひとつ分からなかった
+調べてみたところ、free後にNULL代入をしないとアドレス自体は参照できると書いてあったため、p=NULL;を入れたところSegmentation fault: 11がでたため、NULL代入の必要があることがわかった。

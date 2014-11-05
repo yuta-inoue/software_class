@@ -1,0 +1,151 @@
+機械ソフトウェア演習　宿題
+第四回
+学籍番号 : 340192C
+井上　裕太
+
+[感想]
+ポインタに入ったためかなり難しくなったと感じた。
+特にメモリ周りと、文字列周りは高級言語で触れることはない闇だと信じているのでここらでしっかり押さえておきたい。
+宿題
+宿題1
+[a.c]
+#include<stdio.h>
+
+void search(int[],int*,int*,double*,int);
+int max_n(int a,int b){return (a>b)?a:b;}
+int min_n(int a,int b){return (a<b)?a:b;}
+int main(){
+    int data[5] = {2,5,6,34,44};
+    int max,min,num;
+    double ave;
+    num = sizeof(data)/sizeof(data[0]);
+    search(data,&min,&max,&ave,num);
+    printf("max=%d,min=%d,ave=%lf\n",max,min,ave);
+    return 0;
+}
+
+void search(int datasets[5],int* min,int* max,double* ave,int num){
+    int temp_max,temp_min,sum,i;
+    for(temp_max=-9999,temp_min=9999,sum=0,i = 0;i<num;i++){
+        temp_max = max_n(temp_max,datasets[i]);
+        temp_min = min_n(temp_min,datasets[i]);
+        sum += datasets[i];
+    }
+    *max = temp_max;
+    *min = temp_min;
+    *ave = (double)sum/num;
+}
+
+[command]
+gcc a.c -o a -lm
+./a
+
+[output]
+max=44,min=2,ave=18.200000
+
+[考察]
+max、min関数で
+error: called object type 'int *' is not a function or function
+
+      pointer
+というエラーが出ていたため、自分で実装したところ正常に動作した
+調べた感じでは、min、maxはビルトインで定義されていないような感じであったため、これはマクロ定義されているものなのだろうかという疑問が残った
+
+宿題2
+[b.c]
+#include<stdio.h>
+#include<string.h>
+int counter(char *);
+int main(){
+    char word[] = "This is a pen.";
+    int i = 0;
+    i = counter(word);
+    printf("The number of character is %d\n",i);
+    return 0;
+}
+
+int counter(char *word){
+    int cnt=0;
+    while(*word++){
+        cnt++;
+    }
+    return cnt;
+}
+
+[command]
+gcc b.c -o b -lm
+./b
+
+[output]
+The number of character is 14
+[考察]
+whileでnullになるまでという処理で動かしたため非常にコードを簡潔にできたと思う
+
+おまけ
+[c.c]
+#include<stdio.h>
+#include<string.h>
+#include<stdlib.h>
+
+void dump(unsigned char* address,int len){
+    unsigned char *current;
+    unsigned char *p;
+    char word[100];
+    printf("              : 00 01 02 03 04 05 06 07 08 09 0a 0b 0c 0d 0e 0f\n");
+    printf("--------------:------------------------------------------------\n");
+    current = (unsigned char*)((((long)address)/16)*16);
+    while(current<(address+len)){
+        printf("%p:",current);
+        for(p = current;p<(current+16);p++){
+            printf(" %02x",*p);
+            if(*p>=0x20&&*p<=0x7e){
+                sprintf(word,"%s%c",word,(unsigned char)*p);
+            } else {
+                sprintf(word,"%s%s",word,".");
+            }
+        }
+        printf("|%s",word);
+        printf("\n");
+        memset(word,0,sizeof(word));
+        current += 16;
+    }
+}
+
+int main(){
+    int s;
+    char word[] = "Watashi ha ninzin ga kirai desu";
+    char line[40];
+    int *p[3];
+    int i1 = 10;
+    int i2[4] = {11,12,13,14};
+    p[0] = &i1;
+    p[1] = i2,p[2] = &(i2[1]);
+    
+    printf("&i1  :%p\n",&i1);
+    printf("i2   :%p\n",i2);
+    printf("i2[0]:%p\n",&i2[0]);
+    printf("p[0] :%p\n",p[0]);
+    printf("p[0] :%p\n",p[1]);
+    printf("p[0] :%4o\n",*p[0]);
+    printf("p[0] :%4o\n",*p[1]);
+    printf("p[0] :%4o\n",*p[2]);
+    printf("p[0] :%4o\n",*(p[2]+1));
+    printf("p[0] :%4o\n",*p[0+1]);
+    dump((unsigned char*)word,64);
+    return 0;
+}
+[command]
+gcc c.c -o c -lm
+./c
+
+[output]
+              : 00 01 02 03 04 05 06 07 08 09 0a 0b 0c 0d 0e 0f
+--------------:------------------------------------------------
+0x7fff51893ad0: 57 61 74 61 73 68 69 20 68 61 20 6e 69 6e 7a 69|Watashi ha ninzi
+0x7fff51893ae0: 6e 20 67 61 20 6b 69 72 61 69 20 64 65 73 75 00|n ga kirai desu.
+0x7fff51893af0: 10 3b 89 51 ff 7f 00 00 c1 5f bb 7f 05 31 00 fa|.;.Q....._...1..
+0x7fff51893b00: 10 3b 89 51 ff 7f 00 00 c9 05 f4 8d ff 7f 00 00|.;.Q............
+[考察]
+文字列のコピーに非常に苦労した。
+はじめはstrcatでなんとかやろうとしていたのだが、引数がconst char*であったため、sprintfの方へと切り替えたところ動いた。
+文字列周りについては、まだまだ分からない部分が多いためもっとしかり学びたい。
