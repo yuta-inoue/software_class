@@ -1,0 +1,248 @@
+機械ソフトウェア演習
+第５回
+学籍番号 : 340192C
+井上　裕太
+
+[感想]
+普段classを使えるプログラムを書いているため、structはデフォルトがprivateでなくpublicなclassというイメージしかなかったです。
+classがある場合、なるべく隠蔽するためにアクセス修飾子はprivateで書こうとするため、privateを宣言する必要のあるstructよりもclassを多用する傾向にありますが、cではclassがないため、structのありがたさが非常に強く感じました。
+メンバ関数の代わりになる関数ポインタも大分忘れてしまっているためもう一回覚え直す必要性を感じました。
+
+問題1
+[a.c]
+#include<stdio.h>
+typedef struct complex_struct {
+    double real;
+    double imaginary;
+} COMPLEX;
+
+COMPLEX add_complex(COMPLEX x,COMPLEX y){
+    COMPLEX comp;
+    comp.real = x.real + y.real;
+    comp.imaginary = x.imaginary + y.imaginary;
+    return comp;
+}
+
+COMPLEX mul_complex(COMPLEX x,COMPLEX y){
+    COMPLEX comp;
+    comp.real = x.real*y.real - x.imaginary*y.imaginary;
+    comp.imaginary = x.real*y.imaginary + x.imaginary*y.real;
+    return comp;
+}
+
+void disp_complex(COMPLEX x){
+    if(x.imaginary < 0)
+        printf("%lf - %lfi\n",x.real,-x.imaginary);
+    else
+        printf("%lf + %lfi\n",x.real,x.imaginary);
+}
+
+int main(){
+    COMPLEX x,y,z;
+    x.real = 2.0;
+    x.imaginary = 5.0;
+    y.real = 4.0;
+    y.imaginary = 3.0;
+    
+    z = add_complex(x,y);
+    disp_complex(z);
+    z = mul_complex(x,y);
+    disp_complex(z);
+    return 0;
+}
+
+[command]
+gcc a.c -o a -lm
+./a
+
+[output]
+6.000000 + 8.000000i
+-7.000000 + 26.000000i
+
+[考察]
+構造体を利用する際にstruct 名前 変数名といちいち書かなければならないと知らなかったため、なぜわざわざtypedefで宣言しなおすのだろうと思っていたが非常にすっきりしました。
+return new Class(x.real+y.real,…);のようにかけると戻り値を書くのがもう少し楽になると感じました。
+
+問題1
+[b.c]
+#include<stdio.h>
+
+#define STUDENT_NUMBER 4
+#define SUBJECT_NUMBER 4
+
+int draw_line(void);
+
+struct result_struct {
+    char name[32];
+    int literature;
+    int math;
+    int english;
+};
+
+int main(){
+    struct result_struct my_class[STUDENT_NUMBER] ={
+        "Taro",80,80,55,
+        "Jiro",75,90,70,
+        "Saburo",50,45,30,
+        "Siro",100,55,90,
+    };
+    int i,sum0=0,sum1[SUBJECT_NUMBER],sum2[STUDENT_NUMBER];
+
+    for(i=0;i<SUBJECT_NUMBER;i++)sum1[i]=0;
+    for(i=0;i<STUDENT_NUMBER;i++)sum2[i]=0;
+
+    for(i=0;i<STUDENT_NUMBER;i++){
+        sum1[0] += my_class[i].literature;
+        sum1[1] += my_class[i].math;
+        sum1[2] += my_class[i].english;
+    }
+
+    for(i=0;i<STUDENT_NUMBER;i++){
+        sum2[i]=my_class[i].literature + my_class[i].math + my_class[i].english;
+    }
+
+    for(i=0;i<STUDENT_NUMBER;i++){
+        sum0+=sum2[i];
+    }
+
+    printf("%12s %12s %12s %12s %12s\n","Name","Literature","Math","English","Sum");
+    draw_line();
+    for(i=0;i<STUDENT_NUMBER;i++){
+        printf("%12s %12d %12d %12d %12d\n",my_class[i].name,my_class[i].literature,my_class[i].math,my_class[i].english,sum2[i]);
+    }
+    draw_line();
+    printf("%12s %12.1f %12.1f %12.1f %12.1f\n","Average",(double)sum1[0]/STUDENT_NUMBER,(double)sum1[1]/STUDENT_NUMBER,(double)sum1[2]/STUDENT_NUMBER,(double)sum0/STUDENT_NUMBER);
+    return 0;
+}
+
+int draw_line(){
+    int i=0;
+    for(i=0;i<65;i++)
+        printf("-");
+
+    printf("\n");
+    return 0;
+}
+
+[command]
+gcc b.c -o b -lm
+./b
+
+[output]
+        Name   Literature         Math      English          Sum
+-----------------------------------------------------------------
+        Taro           80           80           55          215
+        Jiro           75           90           70          235
+      Saburo           50           45           30          125
+        Siro          100           55           90          245
+-----------------------------------------------------------------
+     Average         76.2         67.5         61.2        205.0
+[考察]
+これまでの演習で初めてマクロが出てきたように思いました。
+最近は、MAX、MINやFORなどをマクロ化してりようするため有用な使い方をぜひとも乗っけて欲しいです
+printf(“12…”)としていたので、なぜ12なのか非常に疑問に思っていましたが、実行してみて表示のレイアウトがよくなっていたので理由がわかりました。
+
+問題3
+[c.c]
+#include<stdio.h>
+#include<stdlib.h>
+#define MAX_NUM 1000
+typedef struct individual_data{
+    char name[30];
+    int age;
+    double commute_time;
+} Individual;
+
+void draw_line();
+
+int main(){
+    int i,num=1000,sum=0;
+    double sum1=0.0;
+    Individual* ps;
+    while(num>100){
+        printf("入力するデータの人数を入力してください:");
+        scanf("%d",&num);
+    }
+    ps = (Individual*)malloc(sizeof(Individual)*num);
+    for(i=0;i<num;i++){
+        char name[30];
+        int age;
+        double commutetime;
+        printf("名前を入力してください:");
+        scanf("%s",name);
+        printf("年齢を入力してください:");
+        scanf("%d",&age);
+        printf("通学時間を入力して下さい:");
+        scanf("%lf",&commutetime);
+        sprintf((ps+i)->name,"%s",name);
+        (ps+i)->age = age;
+        (ps+i)->commute_time = commutetime;
+    }
+    for(i=0;i<num;i++){
+        Individual p = *(ps+i);
+        sum+=p.age;
+        sum1+=p.commute_time;
+    }
+    printf("Members List\n");
+    draw_line();
+    printf("%12s %12s %12s\n","Name","Age","Time");
+    for(i = 0;i<num;i++){
+        Individual p = *(ps+i);
+        printf("%12s %12d %12.2f\n",p.name,p.age,p.commute_time);
+    }
+    draw_line();
+    printf("Average\n");
+    draw_line();
+    printf("%12s %12s\n","Age","Time");
+    printf("%12.1lf %12.1lf\n",(double)sum/num,(double)sum1/num);
+    return 0;
+}
+
+void draw_line(){
+    int i=0;
+    for(i=0;i<65;i++)
+        printf("-");
+
+    printf("\n");
+}
+
+[command]
+gcc c.c -o c -lm
+./c
+
+[input]
+入力するデータの人数を入力してください:5
+名前を入力してください:Taro
+年齢を入力してください:50
+通学時間を入力して下さい:0.1
+名前を入力してください:Jiro
+年齢を入力してください:40
+通学時間を入力して下さい:0.2
+名前を入力してください:Saburo
+年齢を入力してください:30
+通学時間を入力して下さい:0.3
+名前を入力してください:Siro
+年齢を入力してください:20
+通学時間を入力して下さい:0.4
+名前を入力してください:Ichiro
+年齢を入力してください:1
+通学時間を入力して下さい:1
+
+
+[output]
+Members List
+-----------------------------------------------------------------
+        Name          Age         Time
+        Taro           50         0.10
+        Jiro           40         0.20
+      Saburo           30         0.30
+        Siro           20         0.40
+      Ichiro            1         1.00
+-----------------------------------------------------------------
+Average
+-----------------------------------------------------------------
+         Age         Time
+        28.2          0.4
+[考察]
+構造体のポインタを利用して、そこにscanfで値を書き込もうと挑戦しましたが失敗しました。
+入力の際に1回ずつ変数を作成してという手順をとったため結局2段階でコピーされることになるためメモリの使用量的にはあまりよろしくないコードなのではと感じました。
