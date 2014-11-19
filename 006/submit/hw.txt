@@ -1,0 +1,83 @@
+機械ソフトウェア演習　宿題
+第四回
+学籍番号 : 340192C
+井上　裕太
+
+[感想]
+EOFというのが、最近非常に見慣れたものになってきた
+while(cin >> a >> b)などとかくよりもscansの方がデータサイズが大きい場合の読み込みが早いというのを知ったため、cstdioの標準入出力を利用するようにしている
+今回の課題で得た教訓は、segmentation fault 11は必ずしもコード内容からくるのではなく、変数名ミスなどの見落としでもおこるということだった
+宿題
+宿題1
+[a.c]
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+typedef struct user {
+  char name[30];
+  char zip[30];
+  char address[100];
+  char phone[30];
+} User;
+
+
+int main(){
+  int i,cnt;
+  char ch;
+  char name[30],zip[30],address[100],phone[30];
+  char search_name[30];
+  User users[256];
+  FILE *fpi,*fpo;
+  if((fpi=fopen("jusyo_input.dat","r"))==NULL){
+    printf("FILE OPEN ERROR \n");
+    exit(1);
+  }
+  cnt = 0;
+  while(fscanf(fpi,"%s %s %s %s",name,zip,address,phone)!=EOF){
+    User user;
+    sprintf(user.name,"%s",name);
+    sprintf(user.zip,"%s",zip);
+    sprintf(user.address,"%s",address);
+    sprintf(user.phone,"%s",phone);
+    users[cnt++]=user;
+  }
+  fclose(fpi);
+  if((fpo=fopen("jusyo_output.dat","w"))==NULL){
+    printf("FILE OPEN ERROR \n");
+    exit(1);
+  }
+  input:
+  printf("the name of the user:");
+  scanf("%s",search_name);
+  for(i=0;i<cnt;i++){
+    if(strcmp(search_name,users[i].name)==0){
+      fprintf(fpo,"%s %s %s %s\n",users[i].name,users[i].zip,users[i].address,users[i].phone);
+      printf("SUCCESS!!!!!");
+      break;
+    }
+    if(i==cnt-1){
+      printf("no user matched\nplease type again\n");
+      goto input;
+    }
+  }
+  fclose(fpo);
+  return 0;
+}
+
+[command]
+gcc a.c -o a -lm
+./a
+
+[jusyo_input.dat]
+山田 100-0001 東京都杉並区駒場1-1-1 0123-45-6789
+田中 100-0002 東京都新宿区新宿1-1-1 1234-56-7890
+安藤 123-4567 東京都武蔵野市吉祥寺1-1-1 2345-67-8901
+[input]
+山田
+[output]
+山田 100-0001 東京都杉並区駒場1-1-1 0123-45-6789
+
+[考察]
+ファイルポインタの変数名fpo,fpiをコピペしており、fpoのつもりでずっとfpiを書き込みモードでひらいていたため非常に手間取った
+今回はある種これまでの集大成として、構造体、ポインタなどをできるかぎり多用してコードを書くよう意識した
+今回のエラーではまった時に、gccにはステップ実行等デバッグ向きの機能が存在しない点が非常に困ると感じた

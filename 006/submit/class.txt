@@ -1,0 +1,50 @@
+機械ソフトウェア演習
+第6回
+学籍番号 : 340192C
+井上　裕太
+
+[感想]
+file操作回りは、phpでかなり苦労させられた覚えがあるので正直あまり触りたいと思えないところです
+MySQLからdumpしたクエリを加工するためのコードでしたが、SQLファイルのサイズがGBを超えていたのでパフォーマンスをあげるためにポインタ周りの管理の重要性を意識させられたないようでした
+そのときは、はじめfor->while->for->whileのようなオブジェクト指向を無視したもので走りきるまで20分、サーバーのCPU利用率がtopでみていたところ300%オーバーのようなどうしようもない状況でした
+悲劇を繰り返さないためにもきっちり押さえたいところです
+
+問題1
+[a.c]
+#include<stdio.h>
+#include<stdlib.h>
+#define MAX 256
+int main(){
+  FILE *fpf,*fpt;
+  char data[MAX];
+  if((fpf=fopen("test.dat","r")) ==NULL){
+    printf("FILE OPEN ERROR \n");
+    exit(1);
+  }
+  if((fpt=fopen("test_copy.dat","w")) ==NULL){
+    printf("FILE OPEN ERROR \n");
+    exit(1);
+  }
+  while(fgets(data,MAX,fpf)!=NULL){
+    fputs(data,fpt);
+  }
+  fclose(fpf);
+  fclose(fpt);
+  return 0;
+}
+
+[command]
+gcc a.c -o a -lm
+./a
+
+[test.dat]
+test
+testtest
+testtesttest
+[test_copy.dat]
+test
+testtest
+testtesttest
+[考察]
+はじめfileポインタを一つずつ開くようにしようと考え、一時的に文字列を保持する方式をcharポインタを用いて書こうとしましたが、こちらの方が簡潔に書けるのでこちらに変更しました
+dataが固定幅なので、dataをポインタ化すれば汎用性が出せると思います
