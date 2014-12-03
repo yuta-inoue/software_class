@@ -1,0 +1,79 @@
+機械ソフトウェア演習　宿題
+第四回
+学籍番号 : 340192C
+井上　裕太
+
+[感想]
+sort関数で非常にはまってしまった
+C++のソート関数で、配列を渡す際にsort(arr,arr+5)のようにしていたことを思い出せたためうまく書くことができた
+当初、ポインタを渡しているということを完全に忘れていたためしっかりと復習しておきたい
+宿題
+宿題1
+[a.c]
+#include<stdio.h>
+#define NUM 20
+
+int partition(int a[],int n);
+
+void sort(int a[],int n);
+int main(){
+    int i,data[NUM] = {20,62,17,38,76,92,59,11,93,88,79,50,89,67,75,26,83,22,13,48};
+    sort(data,NUM);
+    for(i=0;i<NUM;i++){
+        printf("%d\n",data[i]);
+    }
+    return 0;
+}
+
+int partition(int a[],int n){
+    int p,i,j=0,k=0;
+    int temp_l[NUM],temp_s[NUM];
+    p = a[0];
+    for(i=0;i<n;i++){
+        if(a[i]<p)temp_s[j++] = a[i];
+        else if(a[i]>p)temp_l[k++] = a[i];
+    }
+    for(i=0;i<j;i++)a[i] = temp_s[i];
+    a[j] = p;
+    for(i=0;i<k;i++)a[j+i+1] = temp_l[i];
+    return j;
+}
+
+void sort(int a[],int n){
+    int c;
+    if(n<=1)return;
+    c = partition(a,n);
+    sort(a,c);
+    sort(a+c+1,n-c-1);
+}
+
+[command]
+gcc a.c -o a -lm
+./a
+
+[output]
+11
+13
+17
+20
+22
+26
+38
+48
+50
+59
+62
+67
+75
+76
+79
+83
+88
+89
+92
+93
+
+[考察]
+マージソートと似たアルゴリズムだと感じた
+sort()に渡す引数の意味を理解することが重要であると感じた
+当初第二引数の意味が分かっていなかったが、配列のサイズというのに気づいた後は比較的わかりやすいコードだった

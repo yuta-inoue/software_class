@@ -1,0 +1,169 @@
+機械ソフトウェア演習
+第八回
+学籍番号 : 340192C
+井上　裕太
+
+[感想]
+制御文、変数の復習になる内容だった
+再帰関数は比較的見やすくなるという理由からよく利用するが、規模が大きくなった際の計算時間がおそろしいことになることがたびたびあった
+繰り返し式の場合、ごちゃごちゃすることもあるが諸処に計算の工夫ができるため一長一短であると思う
+
+問題1
+[a.c]
+#include<stdio.h>
+#include<stdlib.h>
+#include<time.h>
+#define NUM 10
+#define MAX 100
+int hist[NUM+1]={0};
+
+int coin(){
+  return (rand()%2);
+}
+
+int trial(int n){
+  int i,cnt=0;
+  for(i=0;i<n;i++)cnt+=coin();
+  return (n-cnt);
+}
+int main(){
+  int i;
+  srand((unsigned)time(NULL));
+  for(i=0;i<MAX;i++){
+    hist[trial((int)NUM)]++;
+  }
+
+  for(i=0;i<NUM+1;i++)printf("%d\n",hist[i]);
+  return 0;
+}
+
+[command]
+gcc a.c -o a -lm
+./a
+
+[output]
+0
+1
+5
+11
+22
+28
+16
+14
+3
+0
+0
+
+[考察]
+(a)
+coin()関数は、rand()を使用し、疑似乱数を生成、その値を2で割れるかの値を返すという方式で実装した
+何ぶん乱数自体は完全にランダムという分けにはいかないが、比較的きれいな分布になったのではないかと思う
+(b)
+coin関数が0または1を返すという方式なので、カウンタに都度追加していき最終的に全体の数から引く方式で実装した
+この場合、coin()でかえる値が1の時表として考えた方がコードに無駄がなくかけると思う
+
+問題2
+[b.c]
+---繰り返し---
+#include<stdio.h>
+#define MAX 100
+#define n 10
+typedef long long ll;
+ll a[MAX];
+
+void solve(){
+  int an=0,i;
+  a[0] = a[1] = 1;
+  for(i=0;i<n-2;i++){
+    a[i+2] = a[i]+a[i+1];
+  }
+}
+
+int main(){
+  solve();
+  int i;
+  for(i=0;i<n;i++){
+    printf("%lld\n",a[i]);
+  }
+}
+
+---再帰---
+#include<stdio.h>
+#define n 10
+int fib(int num){
+  if(num==0||num==1)return 1;
+  return fib(num-1)+fib(num-2);
+}
+
+int main(){
+  int i;
+  for(i=0;i<n;i++)printf("%d\n",fib(i));
+  return 0;
+}
+
+[command]
+gcc b.c -o b -lm
+./b
+
+[output]
+1
+1
+2
+3
+5
+8
+13
+21
+34
+55
+
+[考察]
+シンプルさという観点では再帰の方が優れていると考える
+一方で関数呼び出しに伴うオーバーヘッド等を考慮すると繰り返しの方が規模の大きい計算には向いていると考える
+また、今回工夫した点としては、繰り返しにおいて先にそれぞれの要素を計算しておき、都度計算するのではなく計算結果を保存しておき参照する形にした
+
+おまけ
+[c.c]
+---繰り返し---
+#include<stdio.h>
+#define n 10
+
+int main(){
+  int i,mul=1;
+  for(i=1;i<n;i++){
+    mul*=i;
+    printf("%d\n",mul);
+  }
+    return 0;
+}
+---再帰---
+#include<stdio.h>
+#define n 10
+int func(int num){
+  if(num==0)return 1;
+  return num*func(num-1);
+}
+
+int main(){
+  int i;
+  for(i=1;i<n;i++)printf("%d\n",func(i));
+  return 0;
+}
+[command]
+gcc c.c -o c -lm
+./c
+
+[output]
+1
+2
+6
+24
+120
+720
+5040
+40320
+362880
+
+[考察]
+階乗計算については値が大きくなる速度が速いため、型の制御に注意が必要だと思う
+やはり再帰の方が何をしているのかが見えるのでわかりやすいと感じた
