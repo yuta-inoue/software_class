@@ -1,0 +1,13 @@
+int hoge;             // hoge is int
+
+int hoge[10];         // hoge is array (size:10) of int
+
+int hoge[10][3];      // hoge is array (size:10) of array (size:3) of int
+
+int *hoge[10];        // hoge is array (size:10) of pointer to int
+
+double (*hoge)[3];    // hoge is pointer to array (size:3) of double
+
+int func(int a);      // func is function (of int a) returning int
+
+int (*func_p)(int a); // func_p is pointer to function (of int a) returning int
