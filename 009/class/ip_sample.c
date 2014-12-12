@@ -4,9 +4,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <stdbool.h>
 #define X_SIZE (1152/2)
 #define Y_SIZE (864/2)
 
+char decide_color(int x,int y);
 void sample_func(unsigned char* image, int sx, int sy);
 
 int main(int argc, char* argv[])
@@ -72,25 +74,45 @@ void sample_func(unsigned char* image, int sx, int sy)
     double theta;
     unsigned char buf;
     unsigned char* out_image;
+    bool processed_flag[sx][sy];
+    int dx[] = {-1,0,1};
     printf("Input theta   :  ");
     scanf("%d",&th);
     if (NULL == (out_image = (unsigned char *)malloc(sizeof(unsigned char)*sx*sy))){
-        printf("Memory allocation failed. ");return;
     }
     theta = M_PI*th/180.0;
     //Image initialize
     for(j=0; j<sy; j++)
-        for(i=0; i<sx; i++)
-            out_image[j*sx+i] = 0;
-    for(j=0; j<sy; j++)
         for(i=0; i<sx; i++){
-            double x = cos(theta)*(i-sx/2)-sin(theta)*(j-sy/2)+sx/2;
-            double y = sin(theta)*(i-sx/2)+cos(theta)*(j-sy/2)+sy/2;
+            out_image[j*sx+i] = 0;
+            processed_flag[i][j] = false;
+        }
+    for(j=0; j<sy; j++){
+        for(i=0; i<sx; i++){
+            int x = cos(theta)*(i-sx/2)-sin(theta)*(j-sy/2)+sx/2;
+            int y = sin(theta)*(i-sx/2)+cos(theta)*(j-sy/2)+sy/2;
             int point = (int)(y*sx+x);
             if(y<sy&&x<sx&&y>0&&x>0){
-                //printf("%d,%d->%lf,%lf\n",i,j,x,y);
                 out_image[point] = image[j*sx+i];
+                processed_flag[x][y] = true;
             }
+        }
+    }
+    int h;
+    for(h=0;h<100;h++)
+      for(j=0;j<sy;j++)
+        for(i=0;i<sx;i++){
+          if(!processed_flag[i][j]){
+            int total=0,k,l,num=0;
+            for(k=0;k<3;k++)
+              for(l=0;l<3;l++){
+                if(!((k==0)&&(l==0))&&((j+dx[l])<sy&&(i+dx[k])<sx)){
+                  total+=out_image[(j+dx[l])*sx+(i+dx[k])];
+                  num++;
+                }
+              }
+            out_image[j*sx+i] = total/num;
+          }
         }
     for(j=0;j<sy;j++)
       for(i=0;i<sx;i++)
