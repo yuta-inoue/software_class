@@ -1,0 +1,214 @@
+機械ソフトウェア演習
+第8回
+学籍番号 : 340192C
+井上　裕太
+
+[感想]
+ポインタ、配列、探索といった非常に重要な分野の講義だった
+個人的に勉強しているという点でアルゴリズム問題について特に触れると、全探索はなるべくさけ探索する要素数を減らすという観点重要だと意識するようになった
+一方で、アルゴリズムを意識するあまり全探索のほうが早い場合にも、アルゴリズムをとなってしまっているので状況に応じて判断できるようになりたい
+
+問題1
+[kadai1.c]
+/*--------------------------------------------------------------
+    課題：ポインタの配列
+--------------------------------------------------------------*/
+#include <stdio.h>
+#include <stdlib.h>
+
+void print(int *args[],int n);
+
+int main(void)
+{
+  int x=5, y=3, z=7;
+//データ
+  int *p[3];
+//ポインタの配列
+
+//ポインタの配列へアドレスを代入．
+
+ p[0]=&x; p[1]=&y; p[2]=&z;
+ printf("&x = %p  x = %d\n", &x, x);
+ printf("&y = %p  y = %d\n", &y, y);
+ printf("&z = %p  z = %d\n", &z, z);
+ //ポインタの配列が指すアドレスと内容の表示
+
+ print(p, 3);  //TODO: 関数printを作成
+
+ return 0;
+}
+
+void print(int *args[],int n){
+  int i;
+  for(i=0;i<n;i++){
+    printf("address = %p values = %d\n",args[i],*args[i]);
+  }
+}
+
+[command]
+gcc kadai1.c -o kadai1 -lm
+./kadai1
+
+[output]
+&x = 0x7fff532949d8  x = 5
+&y = 0x7fff532949d4  y = 3
+&z = 0x7fff532949d0  z = 7
+address = 0x7fff532949d8 values = 5
+address = 0x7fff532949d4 values = 3
+address = 0x7fff532949d0 values = 7
+
+[考察]
+ポインタの配列を引数とした関数であるが、配列名はその配列の先頭アドレスを指すポインタであるため実質的にポインタのポインタと等価である
+ポインタの指す値がポインタというのは少し違和感を感じるが、これにより関数のデリゲートのようなものにつながるという説明があったのが良かったと思う
+
+問題2
+[kadai2.c]
+/*--
+  課題２：多次元配列とポインタ
+  --*/
+
+#include <stdio.h>
+#include <stdlib.h>
+
+//  TODO: 関数 calculate の中で各行の和を表示
+
+void calculate(int a[][4],int raw);
+
+int main(void)
+{
+  //データ配列
+
+  int a[][4] = {
+    {1,2,3,4},
+    {5,6,7,8},
+    {9,10,11,12},
+  };
+
+  // TODO: 行の和を計算
+
+  calculate(a,(int)(sizeof(a)/sizeof(a[0])));
+
+  return 0;
+}
+
+void calculate(int a[][4],int raw){
+  int i,j,cnt;
+  for(i=0;i<raw;i++){
+    cnt=0;
+    for(j=0;j<4;j++){
+      cnt+=a[i][j];
+    }
+    printf("%d\n",cnt);
+  }
+}
+
+[command]
+gcc kadai2.c -o kadai2 -lm
+./kadai2
+
+[output]
+10
+26
+42
+
+[考察]
+calculate関数の引数で多次元配列の後ろの要素数だけしていするというのは、配列のサイズを決定するために必要であるが直感的にはまだ多少違和感がある
+関数の本体自体は非常に簡単な二重ループなので、配列の形について考える機会だと思う
+
+おまけ
+[kadai3.c]
+/*--
+    課題３：線形探索
+    --*/
+
+#include <stdio.h>
+#include <stdlib.h>
+
+#define MAX_DATA 5
+int comp(const void *c1,const void *c2);
+int search(int a[],int size,int val);
+int main(void)
+{
+  int i, val, res; //val: 探索値，res: 探索結果．配列中の位置
+  char buf[100];
+  int a[MAX_DATA];  //入力データ
+  int size = sizeof(a)/sizeof(a[0]); //データの数
+
+  //データの入力
+  printf("<input data>\n");
+  for(i=0; i< size; i++){
+    printf("a[%d]: ", i);
+    fgets(buf, sizeof(buf), stdin);
+    sscanf(buf, "%d", &a[i]);
+  }
+
+  //探索値の入力
+  printf("search value:");
+  fgets(buf, sizeof(buf), stdin);
+  sscanf(buf, "%d", &val);
+  //値の探索および結果の表示 (TODO: 関数 search の作成)
+  if((res = search(a, size, val))!= -1){
+    printf("that value is a[%d]\n", res);
+  } else {
+    printf("not found\n");
+  }
+  return 0;
+}
+
+/*-- binary_searchを用いた要素の探索O(logn)
+int comp(const void *c1,const void *c2){
+  int temp1 = *(int *)c1;
+  int temp2 = *(int *)c2;
+  if(temp1<temp2)return -1;
+  if(temp1==temp2)return 0;
+  if(temp1>temp2)return 1;
+}
+
+int search(int a[],int size,int val){
+  qsort(a,size,sizeof(int),comp);
+  int low,high,mid;
+  low = 0;
+  high = size-1;
+  while(low<=high){
+    mid=(low+high)/2;
+    if(a[mid]==val){
+      return mid;
+    }
+    if(a[mid]<val){
+      low=mid+1;
+    } else {
+      high = mid-1;
+    }
+  }
+  return -1;
+}
+*/
+int search(int a[],int size,int val){
+  int i;
+  for(i=0;i<size;i++){
+    if(a[i]==val){
+      return i;
+    }
+  }
+  return -1;
+}
+[command]
+gcc kadai3.c -o kadai3 -lm
+./kadai3
+
+[input]
+<input data>
+a[0]: 10
+a[1]: 20
+a[2]: 30
+a[3]: 5
+a[4]: 2
+search value:5
+
+[output]
+that value is a[3]
+
+[考察]
+今回は存在場所の探索という内容なので線形探索が適しているが、応用として二分探索のアルゴリズムも考えてみた
+ソートにO(nlog2n)、探索にO(log2n)なので実質nlognの計算量と考えられる
+探索問題に関しては、線形実装に慣れてしまっていると条件が複雑になった際に効率性が著しく下がるためなるべく対数時間のアルゴリズムを採用していきたいと考える
