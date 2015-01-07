@@ -1,0 +1,200 @@
+機械ソフトウェア演習
+第11回
+学籍番号 : 340192C
+井上　裕太
+
+[感想]
+c++のprioirty_queueを先日自分で実装してみた際に似たようなコードを書いたが、追加、削除よりもいかに平衡二分木に近づけるかという部分に非常に苦労したためできればその部分のアルゴリズムの話を聞けたらよかったと思う。
+実際のところ、STLを利用してコードを組んでしまうため内部実装を一から作成するという経験があまりないので、cを勉強するのであればその部分を学びたいと強く感じた。
+問題1
+[kadai1.c]
+#include<stdio.h>
+#include<stdlib.h>
+
+void alloc1(int num){
+  double *x, s=0.0;
+  int i;
+  char line[40];
+
+  x = (double*)malloc(sizeof(double)*num);
+
+  for(i=0; i<num; i++){
+    fgets(line, sizeof(line), stdin);
+    sscanf(line, "%lf",(x+i) /* TODO 3*/);
+  }
+
+  for(i=0; i<num; i++){
+    s += x[i];
+  }
+  s /= (double)num;
+  printf("%f\n", s);
+
+  free(x);
+  /* TODO 4 */;
+}
+
+int main(void){
+  int num;
+  char line[40];
+
+  printf("num of data: ");
+  fgets(line, sizeof(line), stdin);
+  sscanf(line, "%d", &num);
+
+  alloc1(num);
+
+  return 0;
+}
+
+[command]
+gcc kadai1.c -o kadai1 -lm
+./kadai1
+[input]
+num of data: 10
+1
+10
+2
+9
+3
+8
+4
+7
+5
+6
+
+[output]
+5.500000
+[考察]
+TODO 3において、&x[i]としていするのと(x+i)としていするのが同じように動作することを確認することができた。
+mallocについての復習の割合が多いと感じた。
+
+問題2
+[kadai2.c]
+#include<stdio.h>
+#include<stdlib.h>
+
+typedef struct list_struct{
+  int data;
+  struct list_struct *next;
+}LIST;
+
+LIST head;
+
+void addlist(void);
+void showlist(void);
+
+int main(void){
+  char command, buf[40];
+
+  head.next = NULL;
+
+  do{
+    printf("comm? a:add p:print q:quit\n");
+    fgets(buf, sizeof(buf), stdin);
+    sscanf(buf, "%c", &command);
+
+    switch(command){
+    case 'a':
+      addlist();
+      showlist();
+      break;
+    case 'p':
+      showlist();
+      break;
+    case 'q':
+      break;
+    default:
+      printf("error\n");
+      break;
+    }
+  }while(command != 'q');
+
+  return 0;
+}
+
+void addlist(void){
+  LIST *p, *q, *newcell;
+  int data;
+  char buf[40];
+
+  printf("data ? \n");
+  fgets(buf, sizeof(buf), stdin);
+  sscanf(buf, "%d", &data);
+
+  /* TODO 1 */
+  p = head.next;
+  q=&head;
+  while(1){
+    if(p==NULL)break;
+    if(data >= q->data && data <= p->data)break;
+    q = p;
+    p = q->next;
+  }
+
+  newcell = (LIST*)malloc(sizeof(LIST));/* TODO 2 */;
+  if(newcell == NULL){
+    printf("mem err\n");
+    return;
+  }
+
+  /* TODO 3 */
+  newcell->next = q->next;
+  newcell->data = data;
+  q->next = newcell;
+}
+
+void showlist(void){
+  LIST *p;
+
+  printf("\nlist \n");
+  /* TODO 4 */
+  p = head.next;
+
+  while(1){
+    printf("%d\n",p->data);
+    if(p->next==NULL)break;
+    p = p->next;
+  }
+}
+
+[command]
+gcc kadai2.c -o kadai2 -lm
+./kadai2
+
+[input]
+comm? a:add p:print q:quit
+a
+data ?
+100
+
+list
+100
+comm? a:add p:print q:quit
+a
+data ?
+40
+
+list
+40
+100
+comm? a:add p:print q:quit
+a
+data ?
+999
+
+list
+40
+100
+999
+comm? a:add p:print q:quit
+p
+
+list
+40
+100
+999
+comm? a:add p:print q:quit
+q
+[考察]
+ポインタのつなぎかえをするだけなので、コードとしては非常に単純なものである。
+pがNULLである場合、p->nextやp->dataの処理は参照先が存在せずエラーを吐くため、while文で挿入位置を探す際にwhile(true)の形式で無限ループさせ、内部状況に応じてbreakする形でコードを設計した。
