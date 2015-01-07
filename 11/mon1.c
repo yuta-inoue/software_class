@@ -10,14 +10,14 @@ LIST head;
 
 void addlist(void);
 void showlist(void);
-
+void deletelist(void);
 int main(void){
   char command, buf[40];
 
   head.next = NULL;
 
   do{
-    printf("comm? a:add p:print q:quit\n");
+    printf("comm? a:add d:delete p:print q:quit\n");
     fgets(buf, sizeof(buf), stdin);
     sscanf(buf, "%c", &command);
 
@@ -27,6 +27,10 @@ int main(void){
       showlist();
       break;
     case 'p':
+      showlist();
+      break;
+    case 'd':
+      deletelist();
       showlist();
       break;
     case 'q':
@@ -69,6 +73,32 @@ void addlist(void){
   newcell->next = q->next;
   newcell->data = data;
   q->next = newcell;
+}
+
+void deletelist(){
+  LIST *p,*q,*r;
+  int data;
+  char buf[40];
+
+  printf("data ? \n");
+  fgets(buf, sizeof(buf), stdin);
+  sscanf(buf,"%d",&data);
+
+  p = head.next;
+  q = &head;
+  r = &head;
+  while(1){
+    if(p==NULL){
+      printf("Sorry, there is no such data %d\n",data);
+      return;
+    }
+    if(data==q->data)break;
+    r = q;
+    q = p;
+    p = q->next;
+  }
+  q->next = NULL;
+  r->next = p;
 }
 
 void showlist(void){
